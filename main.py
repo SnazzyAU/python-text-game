@@ -32,7 +32,11 @@ settlementInventory = {}
 
 ## Maps
 def NorthForest():
+    gameData['lastLocation'] = 'North Forest'
+    pickle.dump([gameData,gameInventory, settlementData, settlementInventory], open('data/savefile', 'wb'))
+
     spawnItems()
+    clear()
     while True:
         choice = input("You are in the northern forest. \n\n[1] Explore\n[2] Gather Resources\n[3] Go Back To Village \n\n")
   
@@ -91,16 +95,81 @@ def NorthForest():
             print("Invalid choice, please only choose the presented options.\n")
 
 def Village():
+    gameData['lastLocation'] = 'Village'
+    pickle.dump([gameData,gameInventory, settlementData, settlementInventory], open('data/savefile', 'wb'))
+    
     while True:
         choice = input("You are in Azgard, the local village. \n\n[1] Begin Travels\n[2] Village Management\n[3] Village Inventory\n[4] Library\n[5] Calendar\n\n")
   
         # Travels
         if choice == "1":
             clear()
-            dramaticPrint("You walk to the village's front gate...", 0.07)
+            dramaticPrint("You walk to the village's front gate...\n", 0.07)
             
-            
-            break
+            while True:
+                print('''
+                                    /‾\         /‾‾\     
+                                /‾‾‾  | /‾‾‾‾‾‾‾    ‾\  
+                                |      ‾             |  
+                                |    North           |   
+                               /    Forest           |   
+                             /‾                      /   
+                            |              ________/‾   
+                            |        | Harbour  _/         
+                     /‾‾‾‾‾‾‾   _____|_____/‾‾           
+                    /          |                         
+                    |          |                         
+                 /‾‾  Village  |             /‾‾‾‾‾‾\    
+                 |             |             |       ‾\  
+                 \             |             | Exodus  |  
+                  \____       _/             \______  /  
+                       \     |                      \/   
+                        \____/                           
+                                                        
+                ''')
+                
+                mapChoice = input("Where would you like to go? ")
+                
+                # Village
+                if mapChoice == "village" or mapChoice == "Village":
+                    print("You are already at the village!\n")
+                    time.sleep(3)
+                
+                elif mapChoice == "North Forest" or mapChoice == "north forest":
+                    dramaticPrint("You pack your bags and prepare for your trip to the Northern Forest...",0.07)
+                    time.sleep(1)
+                    NorthForest()
+                
+                elif mapChoice == "Harbour" or mapChoice == "harbour":
+                    print("You can only enter the harbour from the Northern Forest.\n")
+                                        
+                    while True:
+                        choice = input("Would you like to go to the Northern Forest?\n\n[1] Yes\n[2] No \n\n")
+
+                        if choice == "1":
+                            dramaticPrint("You pack your bags and prepare for your trip to the Northern Forest...",0.07)
+                            time.sleep(1)
+                            NorthForest()
+                            
+                        elif choice == "2":
+                            print("Very well.")
+                            time.sleep(1)
+                            clear()
+                            
+                            break
+                    
+                        else:
+                            print("Invalid choice, please try again.\n")
+                            time.sleep(3)
+                
+                elif mapChoice == "Exodus" or "exodus":
+                    print("You cannot go there without a boat! Get to the harbour.")
+                    time.sleep(3)
+                    
+                else:
+                    print("Invalid choice, please try again.\n")
+                    time.sleep(3)
+                
             
         # Villagement Management System
         elif choice == "2":
@@ -419,3 +488,4 @@ if os.path.exists('data/savefile'):
             
 else:
     newGame()
+
