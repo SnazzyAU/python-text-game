@@ -25,12 +25,10 @@ import os
 from threading import Thread
 
 ## Initialized Variables
-gameData = {'playerUsername': "", 'health': 100, 'lastLocation': '', 'Coins': 0, 'HasBag': False, 'Day': 0, 'attackCount': 0}
+gameData = {'playerUsername': "", 'health': 100, 'lastLocation': '', 'Coins': 0, 'HasBag': True, 'Day': 0, 'attackCount': 0}
 settlementData = {'villageHealth': 100, 'wallLevel': 0, 'cannonLevel': 0}
 gameInventory = {}
 settlementInventory = {}
-
-global itemToSpawn
 
 ## Maps
 def NorthForest():
@@ -57,7 +55,6 @@ def NorthForest():
                 print()
                 
             if choice2 == '3':
-                Village()
                 break
                 
             break
@@ -66,16 +63,18 @@ def NorthForest():
         elif choice == "2":
             while True:
                 print("You begin scavenging for branches...")
+                
                 time.sleep(3)
                 
-                while True:
-                    choice = input(f"You found: {itemToSpawn} \n\n[1] Collect\n[2] Ignore \n\n")
-                    if choice == '1':
-                        addToInventory(itemToSpawn)
-                        break
-                    
-                    elif choice == '2':
-                        break
+                choice = input(f"You found: {itemToSpawn} \n\n[1] Collect\n[2] Ignore \n\n")
+                
+                if choice == '1':
+                    addToInventory(itemToSpawn)
+                    break
+                
+                elif choice == '2':
+                    break
+                
                 else:
                     print("Invalid choice, please only choose the presented options.\n")
             
@@ -83,9 +82,13 @@ def NorthForest():
 
                 if choice == '2':
                     break
-            else:
-                clear()
-                print("Invalid choice, please only choose the presented options.\n")
+            
+        elif choice == '3':
+            Village()
+            
+        else:
+            clear()
+            print("Invalid choice, please only choose the presented options.\n")
 
 def Village():
     while True:
@@ -93,6 +96,9 @@ def Village():
   
         # Travels
         if choice == "1":
+            clear()
+            dramaticPrint("You walk to the village's front gate...", 0.07)
+            
             
             break
             
@@ -114,26 +120,31 @@ def Village():
                         print(f"\nYour Inventory: {gameInventory}")
                         print(f"Village Inventory: {settlementInventory}\n")
                         
-                        choice = input("Which item would you like to deposit? (type exit to leave) ").lower()
+                        choice = input("Which item would you like to deposit? (type exit to leave) ")
                         
                         if choice in gameInventory:
                             print(f"\nYou chose {choice}, you currently have {gameInventory.get(choice)} of this item.\n")
                             
                             while True:
                                 amount = int(input("How many of this item do you want to deposit? "))
-
                                 
-                                if gameInventory.get(choice) - amount < 0:
-                                    print("You don't have that much!")
+                                if amount <= 0:
+                                    print("Invalid amount, try again")
+                                
                                 else:
-                                    gameInventory[choice] = gameInventory.get(choice) - amount
-                                    settlementInventory[choice] = settlementInventory.get(choice, 0) + amount
+                                
+                                    if gameInventory.get(choice) - amount < 0:
+                                        print("You don't have that much!")
                                     
-                                    pickle.dump([gameData,gameInventory, settlementData, settlementInventory], open('data/savefile', 'wb'))
+                                    else:
+                                        gameInventory[choice] = gameInventory.get(choice) - amount
+                                        settlementInventory[choice] = settlementInventory.get(choice, 0) + amount
+                                        
+                                        pickle.dump([gameData,gameInventory, settlementData, settlementInventory], open('data/savefile', 'wb'))
 
-                                    clear()
-                                    print(f"Sucessfully deposted x{amount} {choice} into the village's inventory!")
-                                    break
+                                        clear()
+                                        print(f"Sucessfully deposted x{amount} {choice} into the village's inventory!")
+                                        break
                             
                         elif choice == "exit":
                             clear()
@@ -152,23 +163,29 @@ def Village():
                         choice = input("Which item would you like to withdraw? (type exit to leave) ").lower()
 
                         if choice in settlementInventory:
-                            print(f"\nYou chose {choice}, you currently have {gameInventory.get(choice)} of this item in your village's stash.\n")
+                            clear()
+                            print(f"\nYou chose {choice}, you currently have {settlementInventory.get(choice)} of this item in your village's stash.\n")
                             
-                            while True:                            
+                            while True:
                                 amount = int(input("How many of this item do you want to withdraw? "))
                                 
-                                if settlementInventory.get(choice) - amount < 0:
-                                    print("You don't have that much in your village's stash!")
+                                if amount <= 0:
+                                    print("Invalid amount, try again.")
                                 
                                 else:
-                                    gameInventory[choice] = gameInventory.get(choice, 0) + amount
-                                    settlementInventory[choice] = settlementInventory.get(choice) - amount
+                                
+                                    if settlementInventory.get(choice) - amount < 0:
+                                        print("You don't have that much in your village's stash!")
                                     
-                                    pickle.dump([gameData,gameInventory, settlementData, settlementInventory], open('data/savefile', 'wb'))
+                                    else:
+                                        gameInventory[choice] = gameInventory.get(choice, 0) + amount
+                                        settlementInventory[choice] = settlementInventory.get(choice) - amount
+                                        
+                                        pickle.dump([gameData,gameInventory, settlementData, settlementInventory], open('data/savefile', 'wb'))
 
-                                    clear()
-                                    print(f"Sucessfully withdrew x{amount} {choice} from the village's inventory!")
-                                    break
+                                        clear()
+                                        print(f"Sucessfully withdrew x{amount} {choice} from the village's inventory!")
+                                        break
                                 
                         elif choice == "exit":
                             clear()
@@ -214,6 +231,7 @@ def Village():
             print("Invalid choice, please only choose the presented options.\n")
     
 ## Functions
+            
 # Clear the screen
 def clear():
     print('\n' * 100)
@@ -288,15 +306,14 @@ def setLevel():
         Village()
         
 def spawnItems():
-    if gameData['lastLocation'] == 'North Forest':
-        commonItems = ['Bronze Sword','Leaf']
-        rareItems = ['Enchanted Wood']
-        
-        if random.randint(1,100) < 80:
-            global itemToSpawn
-            itemToSpawn = random.choice(commonItems)
-        else:
-            itemToSpawn = random.choice(rareItems)
+    commonItems = ['leaf','paper']
+    rareItems = ['enchanted wood']
+    
+    if random.randint(1,100) < 80:
+        global itemToSpawn
+        itemToSpawn = random.choice(commonItems)
+    else:
+        itemToSpawn = random.choice(rareItems)
                     
 def addToInventory(item):
     clear()
@@ -326,7 +343,7 @@ def dramaticPrint(text,delay):
     
 def dayCounter():
     while True:
-        time.sleep(1)
+        time.sleep(100000)
         gameData['Day'] = gameData['Day'] + 1
         pickle.dump([gameData,gameInventory,settlementData,settlementInventory], open('data/savefile', 'wb'))
         
@@ -336,8 +353,6 @@ def dayCounter():
 
 def attackDay():
     
-    break
-
     attackCount = gameData['attackCount']
     attackDamage = 10 + attackCount
     
